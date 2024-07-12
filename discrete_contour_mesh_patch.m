@@ -2,7 +2,7 @@ function [C, T, N] = discrete_contour_mesh_patch(V, mode)
 %% discrete_contour_mesh_patch : function to mesh one discrete 2D
 % or 3D contour composed of sorted or disordered 3D points.
 %
-% Author and support : nicolas.douillet (at) free.fr, 2020.
+% Author : nicolas.douillet (at) free.fr, 2020-2024.
 %
 %
 % Syntax
@@ -160,7 +160,7 @@ if strcmpi(mode,'raw') % reorder / angular sort if necessary
     U = V - repmat(G,[size(V,1),1]);
     ref_vect1 = repmat(U(1,:),[size(U,1),1]);
     bov = cross(U(1,:),U(2,:),2);
-    angl = atan2(sign(dot(cross(ref_vect1,U,2),repmat(bov,[size(U,1),1]),2)).*sqrt(sum(cross(ref_vect1,U,2).^2,2)),dot(ref_vect1,U,2));
+    angl = atan2(sign(dot(cross(ref_vect1,U,2),repmat(bov,[size(U,1),1]),2)).*vecnorm(cross(ref_vect1,U,2)',2)',dot(ref_vect1,U,2));
     [~,idx] = sort(angl);
     C = V(idx,:);    
     
@@ -184,7 +184,7 @@ B = repelem(boundary',cat(2,1,2*ones(1,bound_nb_vtx-2),1));
 B = reshape(B,[2,bound_nb_vtx-1])';
 B = cat(1,B,[B(end,end) B(1,1)]);
 Tf = C(B(:,2),:) - C(B(:,1),:);
-Tf = Tf ./ sqrt(sum(Tf.^2,2));
+Tf = Tf ./ vecnorm(Tf',2)';
 Tb = -Tf;
 N = -Tf - circshift(Tb,1,1);
 G = mean(C,1);
@@ -196,14 +196,14 @@ if ~isequal(orientation,ones(bound_nb_vtx,1))
     
 end
 
-N = N ./ sqrt(sum(N.^2,2));
+N = N ./ vecnorm(N',2)';
 
 
 cross_prod = @(boundary_backward,boundary,boundary_forward) cross(C(boundary_forward,:)-C(boundary,:),C(boundary_backward,:)-C(boundary,:),2);
 dot_prod   = @(boundary_backward,boundary,boundary_forward)   dot(C(boundary_forward,:)-C(boundary,:),C(boundary_backward,:)-C(boundary,:),2);
 
 sgn = @(bov,cross_prod) sign(dot(cross_prod,repmat(bov,[size(cross_prod,1),1]),2));
-edg_angle = @(sgn,cross_prod,dot_prod) atan2(sgn.*sqrt(sum(cross_prod.^2,2)),dot_prod);
+edg_angle = @(sgn,cross_prod,dot_prod) atan2(sgn.*vecnorm(cross_prod',2)',dot_prod);
 
 
 % Initialization
