@@ -3,7 +3,7 @@
 % Function to mesh one discrete 2D or 3D contour
 % composed of sorted or disordered 3D points.
 %
-% Author and support : nicolas.douillet (at) free.fr, 2020.
+% Author : nicolas.douillet (at) free.fr, 2020-2024.
 %
 %% Syntax
 %
